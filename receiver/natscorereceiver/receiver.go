@@ -22,15 +22,21 @@ type unmarshalFunc[T any] func([]byte) (T, error)
 // consumeFunc hands a pdata signal value to the next consumer in the pipeline.
 type consumeFunc[T any] func(context.Context, T) error
 
+// unmarshalerResolver resolves the unmarshaler for a signal given the host. It is
+// invoked at Start so that encoding extensions (only reachable via the host) can
+// be looked up.
+type unmarshalerResolver[T any] func(host component.Host) (unmarshalFunc[T], error)
+
 // natsReceiver consumes one signal type from NATS. It subscribes to a core NATS
 // subject or, when JetStream is configured, binds a durable consumer to a stream.
 type natsReceiver[T any] struct {
 	cfg       *Config
 	signalCfg *SignalConfig
 	settings  receiver.Settings
-	unmarshal unmarshalFunc[T]
+	resolve   unmarshalerResolver[T]
 	consume   consumeFunc[T]
 
+	unmarshal  unmarshalFunc[T] // resolved in Start
 	conn       *nats.Conn
 	sub        *nats.Subscription       // core NATS
 	consumeCtx jetstream.ConsumeContext // JetStream
@@ -43,21 +49,27 @@ func newNatsReceiver[T any](
 	settings receiver.Settings,
 	cfg *Config,
 	signalCfg *SignalConfig,
-	unmarshal unmarshalFunc[T],
+	resolve unmarshalerResolver[T],
 	consume consumeFunc[T],
 ) *natsReceiver[T] {
 	return &natsReceiver[T]{
 		cfg:       cfg,
 		signalCfg: signalCfg,
 		settings:  settings,
-		unmarshal: unmarshal,
+		resolve:   resolve,
 		consume:   consume,
 	}
 }
 
-func (r *natsReceiver[T]) Start(ctx context.Context, _ component.Host) error {
+func (r *natsReceiver[T]) Start(ctx context.Context, host component.Host) error {
 	// A long-lived context for message handling, decoupled from Start's ctx.
 	r.ctx, r.cancel = context.WithCancel(context.Background())
+
+	unmarshal, err := r.resolve(host)
+	if err != nil {
+		return err
+	}
+	r.unmarshal = unmarshal
 
 	conn, err := natsclient.Connect(ctx, natsclient.Params{
 		Endpoint: r.cfg.Endpoint,

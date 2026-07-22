@@ -39,7 +39,8 @@ This is the receive-side counterpart to the [`natscoreexporter`](../../exporter/
   - `max_deliver` (default = 0): Maximum redelivery attempts. `0` uses the server default.
 - `logs` / `metrics` / `traces`:
   - `subject` (defaults: `otel_logs` / `otel_metrics` / `otel_spans`): Subject to subscribe to (core) or the consumer's filter subject (JetStream).
-  - `encoding` (default = `otlp_proto`): Payload encoding. One of `otlp_proto`, `otlp_json`.
+  - `encoding` (default = `otlp_proto`): Built-in payload encoding. One of `otlp_proto`, `otlp_json`. Mutually exclusive with `encoding_extension`.
+  - `encoding_extension`: Component ID of an [encoding extension](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/encoding) used to unmarshal payloads (e.g. `otlp_encoding/1`). The extension must implement the pdata unmarshaler for the signal. Mutually exclusive with `encoding`.
   - `stream`: JetStream stream to consume from. Required in JetStream mode.
   - `durable`: Durable consumer name. Recommended in JetStream mode so progress survives restarts; empty creates an ephemeral consumer.
 - `auth`: Same options as the exporter — `token`, `user`, `nkey`, `nkey_jwt`, `nkey_user_file`.

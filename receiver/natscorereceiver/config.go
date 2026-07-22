@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/config/configtls"
 	"go.uber.org/multierr"
 
@@ -20,12 +21,21 @@ type SignalConfig struct {
 	// subject for the JetStream consumer.
 	Subject string `mapstructure:"subject"`
 
-	// Encoding of incoming payloads.
+	// Encoding selects a built-in unmarshaler for incoming payloads. Mutually
+	// exclusive with EncodingExtension.
 	//
 	// Supported encodings:
 	//  - otlp_proto (default)
 	//  - otlp_json
 	Encoding string `mapstructure:"encoding"`
+
+	// EncodingExtension is the component ID of an encoding extension used to
+	// unmarshal incoming payloads. Mutually exclusive with Encoding. The extension
+	// must implement the pdata unmarshaler for the signal (plog.Unmarshaler,
+	// pmetric.Unmarshaler, or ptrace.Unmarshaler).
+	//
+	// See: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/encoding
+	EncodingExtension string `mapstructure:"encoding_extension"`
 
 	// Stream is the JetStream stream to consume from. Required in JetStream mode.
 	Stream string `mapstructure:"stream"`
@@ -40,11 +50,25 @@ type SignalConfig struct {
 }
 
 func (c *SignalConfig) Validate() error {
-	switch c.Encoding {
-	case "", encodingOtlpProto, encodingOtlpJSON:
-	default:
-		return fmt.Errorf("unsupported encoding: %q", c.Encoding)
+	if c.Encoding != "" && c.EncodingExtension != "" {
+		return errors.New("encoding configured more than once")
 	}
+
+	if c.Encoding != "" {
+		switch c.Encoding {
+		case encodingOtlpProto, encodingOtlpJSON:
+		default:
+			return fmt.Errorf("unsupported encoding: %q", c.Encoding)
+		}
+	}
+
+	if c.EncodingExtension != "" {
+		var id component.ID
+		if err := id.UnmarshalText([]byte(c.EncodingExtension)); err != nil {
+			return fmt.Errorf("failed to parse encoding extension name: %w", err)
+		}
+	}
+
 	return nil
 }
 

@@ -13,6 +13,7 @@ import (
 	natstest "github.com/nats-io/nats-server/v2/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/component/componenttest"
 	"go.opentelemetry.io/collector/consumer/consumertest"
 	"go.opentelemetry.io/collector/pdata/plog"
@@ -191,4 +192,95 @@ func TestConfigValidate(t *testing.T) {
 	negative := createDefaultConfig().(*Config)
 	negative.JetStream = &JetStreamConfig{MaxDeliver: -1}
 	assert.Error(t, negative.Validate())
+
+	both := createDefaultConfig().(*Config)
+	both.Logs.Encoding = "otlp_json"
+	both.Logs.EncodingExtension = "foo"
+	assert.Error(t, both.Validate(), "encoding and encoding_extension are mutually exclusive")
+}
+
+// extensionHost is a component.Host that exposes a fixed set of extensions.
+type extensionHost struct {
+	component.Host
+	extensions map[component.ID]component.Component
+}
+
+func (h *extensionHost) GetExtensions() map[component.ID]component.Component {
+	return h.extensions
+}
+
+// jsonLogsExtension is a minimal encoding extension that unmarshals OTLP JSON logs.
+type jsonLogsExtension struct{}
+
+func (jsonLogsExtension) Start(context.Context, component.Host) error { return nil }
+func (jsonLogsExtension) Shutdown(context.Context) error             { return nil }
+func (jsonLogsExtension) UnmarshalLogs(data []byte) (plog.Logs, error) {
+	u := &plog.JSONUnmarshaler{}
+	return u.UnmarshalLogs(data)
+}
+
+// TestReceiver_EncodingExtension verifies that an encoding extension resolved from
+// the host is used to unmarshal incoming payloads.
+func TestReceiver_EncodingExtension(t *testing.T) {
+	t.Parallel()
+
+	url := runServer(t, false)
+	ctx := context.Background()
+
+	extID := component.MustNewID("fakeencoding")
+	host := &extensionHost{
+		Host: componenttest.NewNopHost(),
+		extensions: map[component.ID]component.Component{
+			extID: jsonLogsExtension{},
+		},
+	}
+
+	cfg := createDefaultConfig().(*Config)
+	cfg.Endpoint = url
+	cfg.Logs.EncodingExtension = extID.String()
+
+	sink := new(consumertest.LogsSink)
+	set := receivertest.NewNopSettings(metadata.Type)
+	rcv, err := createLogsReceiver(ctx, set, cfg, sink)
+	require.NoError(t, err)
+
+	require.NoError(t, rcv.Start(ctx, host))
+	t.Cleanup(func() { require.NoError(t, rcv.Shutdown(ctx)) })
+
+	nc, err := nats.Connect(url)
+	require.NoError(t, err)
+	defer nc.Close()
+
+	// Publish JSON-encoded logs, which only the extension (not the default
+	// otlp_proto) can decode.
+	jsonMarshaler := &plog.JSONMarshaler{}
+	payload, err := jsonMarshaler.MarshalLogs(testdata.GenerateLogs(1))
+	require.NoError(t, err)
+	require.NoError(t, nc.Publish("otel_logs", payload))
+	require.NoError(t, nc.Flush())
+
+	require.Eventually(t, func() bool {
+		return sink.LogRecordCount() >= 1
+	}, 5*time.Second, 20*time.Millisecond, "the JSON payload should be decoded via the extension")
+}
+
+// TestReceiver_EncodingExtension_NotFound verifies that a missing extension is a
+// Start error.
+func TestReceiver_EncodingExtension_NotFound(t *testing.T) {
+	t.Parallel()
+
+	url := runServer(t, false)
+	ctx := context.Background()
+
+	cfg := createDefaultConfig().(*Config)
+	cfg.Endpoint = url
+	cfg.Logs.EncodingExtension = "missing"
+
+	sink := new(consumertest.LogsSink)
+	set := receivertest.NewNopSettings(metadata.Type)
+	rcv, err := createLogsReceiver(ctx, set, cfg, sink)
+	require.NoError(t, err)
+
+	err = rcv.Start(ctx, componenttest.NewNopHost())
+	assert.Error(t, err)
 }

@@ -23,7 +23,6 @@ const (
 	defaultLogsSubject    = "otel_logs"
 	defaultMetricsSubject = "otel_metrics"
 	defaultTracesSubject  = "otel_spans"
-	defaultEncoding       = encodingOtlpProto
 )
 
 func NewFactory() receiver.Factory {
@@ -41,9 +40,9 @@ func createDefaultConfig() component.Config {
 		Endpoint: nats.DefaultURL,
 		Pedantic: true,
 		TLS:      configtls.NewDefaultClientConfig(),
-		Logs:     SignalConfig{Subject: defaultLogsSubject, Encoding: defaultEncoding},
-		Metrics:  SignalConfig{Subject: defaultMetricsSubject, Encoding: defaultEncoding},
-		Traces:   SignalConfig{Subject: defaultTracesSubject, Encoding: defaultEncoding},
+		Logs:     SignalConfig{Subject: defaultLogsSubject},
+		Metrics:  SignalConfig{Subject: defaultMetricsSubject},
+		Traces:   SignalConfig{Subject: defaultTracesSubject},
 		Auth:     natsclient.AuthConfig{},
 	}
 }
@@ -55,11 +54,7 @@ func createLogsReceiver(
 	next consumer.Logs,
 ) (receiver.Logs, error) {
 	c := cfg.(*Config)
-	unmarshal, err := logsUnmarshaler(c.Logs.Encoding)
-	if err != nil {
-		return nil, err
-	}
-	return newNatsReceiver[plog.Logs](set, c, &c.Logs, unmarshal, next.ConsumeLogs), nil
+	return newNatsReceiver[plog.Logs](set, c, &c.Logs, logsUnmarshalerResolver(&c.Logs), next.ConsumeLogs), nil
 }
 
 func createMetricsReceiver(
@@ -69,11 +64,7 @@ func createMetricsReceiver(
 	next consumer.Metrics,
 ) (receiver.Metrics, error) {
 	c := cfg.(*Config)
-	unmarshal, err := metricsUnmarshaler(c.Metrics.Encoding)
-	if err != nil {
-		return nil, err
-	}
-	return newNatsReceiver[pmetric.Metrics](set, c, &c.Metrics, unmarshal, next.ConsumeMetrics), nil
+	return newNatsReceiver[pmetric.Metrics](set, c, &c.Metrics, metricsUnmarshalerResolver(&c.Metrics), next.ConsumeMetrics), nil
 }
 
 func createTracesReceiver(
@@ -83,9 +74,5 @@ func createTracesReceiver(
 	next consumer.Traces,
 ) (receiver.Traces, error) {
 	c := cfg.(*Config)
-	unmarshal, err := tracesUnmarshaler(c.Traces.Encoding)
-	if err != nil {
-		return nil, err
-	}
-	return newNatsReceiver[ptrace.Traces](set, c, &c.Traces, unmarshal, next.ConsumeTraces), nil
+	return newNatsReceiver[ptrace.Traces](set, c, &c.Traces, tracesUnmarshalerResolver(&c.Traces), next.ConsumeTraces), nil
 }
