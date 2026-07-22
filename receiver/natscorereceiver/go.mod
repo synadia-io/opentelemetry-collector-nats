@@ -3,11 +3,10 @@ module github.com/synadia-labs/opentelemetry-collector-nats/receiver/natscorerec
 go 1.25.0
 
 require (
-	github.com/nats-io/jwt/v2 v2.8.2
 	github.com/nats-io/nats-server/v2 v2.14.3
 	github.com/nats-io/nats.go v1.51.0
-	github.com/nats-io/nkeys v0.4.16
 	github.com/stretchr/testify v1.11.1
+	github.com/synadia-labs/opentelemetry-collector-nats/internal/natsclient v0.0.0-00010101000000-000000000000
 	go.opentelemetry.io/collector/component v1.40.0
 	go.opentelemetry.io/collector/component/componenttest v0.133.0
 	go.opentelemetry.io/collector/config/configtls v1.39.0
@@ -37,6 +36,8 @@ require (
 	github.com/minio/highwayhash v1.0.4 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.3-0.20250322232337-35a7c28c31ee // indirect
+	github.com/nats-io/jwt/v2 v2.8.2 // indirect
+	github.com/nats-io/nkeys v0.4.16 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
@@ -65,3 +66,5 @@ require (
 	google.golang.org/protobuf v1.36.8 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/synadia-labs/opentelemetry-collector-nats/internal/natsclient => ../../internal/natsclient

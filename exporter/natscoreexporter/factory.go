@@ -14,6 +14,7 @@ import (
 
 	"github.com/synadia-labs/opentelemetry-collector-nats/exporter/natscoreexporter/internal/marshaler"
 	"github.com/synadia-labs/opentelemetry-collector-nats/exporter/natscoreexporter/internal/metadata"
+	"github.com/synadia-labs/opentelemetry-collector-nats/internal/natsclient"
 )
 
 const (
@@ -52,7 +53,7 @@ func createDefaultConfig() component.Config {
 			Subject:              defaultTracesSubject,
 			BuiltinMarshalerName: defaultTracesMarshaler,
 		},
-		Auth: AuthConfig{},
+		Auth: natsclient.AuthConfig{},
 	}
 }
 

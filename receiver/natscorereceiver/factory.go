@@ -15,6 +15,7 @@ import (
 	"go.opentelemetry.io/collector/pdata/ptrace"
 	"go.opentelemetry.io/collector/receiver"
 
+	"github.com/synadia-labs/opentelemetry-collector-nats/internal/natsclient"
 	"github.com/synadia-labs/opentelemetry-collector-nats/receiver/natscorereceiver/internal/metadata"
 )
 
@@ -43,7 +44,7 @@ func createDefaultConfig() component.Config {
 		Logs:     SignalConfig{Subject: defaultLogsSubject, Encoding: defaultEncoding},
 		Metrics:  SignalConfig{Subject: defaultMetricsSubject, Encoding: defaultEncoding},
 		Traces:   SignalConfig{Subject: defaultTracesSubject, Encoding: defaultEncoding},
-		Auth:     AuthConfig{},
+		Auth:     natsclient.AuthConfig{},
 	}
 }
 

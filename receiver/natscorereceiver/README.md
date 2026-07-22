@@ -61,7 +61,7 @@ receivers:
 
 ## Roadmap / notes
 
-- The NATS connection + auth code is currently duplicated between this receiver and
-  the exporter. A shared internal `natsclient` module is a natural follow-up.
+- The NATS connection + auth code is shared with the exporter via the
+  [`internal/natsclient`](../../internal/natsclient) module.
 - Encoding-extension support (beyond the built-in `otlp_proto` / `otlp_json`) is a
   planned addition, to match the exporter.

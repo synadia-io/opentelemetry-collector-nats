@@ -3,7 +3,9 @@ github.com/antithesishq/antithesis-sdk-go v0.7.0-default-no-op/go.mod h1:FQyySia
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=
+github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/foxboron/go-tpm-keyfiles v0.0.0-20250520203025-c3c3a4ec1653 h1:QpQsORx5N2EwomFMgeeY2Vzjf4h3nS2XtD8ETonNJVY=
+github.com/foxboron/go-tpm-keyfiles v0.0.0-20250520203025-c3c3a4ec1653/go.mod h1:uAyTlAUxchYuiFjTHmuIEJ4nGSm7iOPaGcAyA81fJ80=
 github.com/foxboron/swtpm_test v0.0.0-20230726224112-46aaafdf7006 h1:50sW4r0PcvlpG4PV8tYh2RVCapszJgaOLRCS2subvV4=
 github.com/foxboron/swtpm_test v0.0.0-20230726224112-46aaafdf7006/go.mod h1:eIXCMsMYCaqq9m1KSSxXwQG11krpuNPGP3k0uaWrbas=
 github.com/fsnotify/fsnotify v1.9.0 h1:2Ml+OJNzbYCTzsxtv8vKSFD9PbJjmhYF14k/jKC7S9k=
@@ -58,6 +60,7 @@ github.com/nats-io/nuid v1.0.1 h1:5iA8DT8V7q8WK2EScv2padNa/rTESc1KdnPw4TC2paw=
 github.com/nats-io/nuid v1.0.1/go.mod h1:19wcPz3Ph3q0Jbyiqsd0kePYG7A95tJPxeL+1OSON2c=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 h1:Jamvg5psRIccs7FGNTlIRMkT8wgtp5eCXdBlqhYGL6U=
+github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/rogpeppe/go-internal v1.13.1 h1:KvO1DLK/DRN07sQ1LQKScxyZJuNnedQ5/wKSR38lUII=
 github.com/rogpeppe/go-internal v1.13.1/go.mod h1:uMEvuHeurkdAXX61udpOXGD/AzZDWNMNyH2VO9fmH0o=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
@@ -91,6 +94,7 @@ go.opentelemetry.io/collector/internal/telemetry v0.134.0/go.mod h1:XVpe4bj8JOPV
 go.opentelemetry.io/collector/pdata v1.40.0 h1:/61/LZz6Sp4z+OlHV8+v2rOk+G9ctKFv50K7VYnkzHI=
 go.opentelemetry.io/collector/pdata v1.40.0/go.mod h1:ZOZMLYHyHIFUK2uClp5cUuNSk9ym+mU5wgtyOTAsiBc=
 go.opentelemetry.io/collector/pdata/pprofile v0.134.0 h1:ES6hS+bsv/RznAl5nxzM868+OlFpSNbVhe+6IyvpT40=
+go.opentelemetry.io/collector/pdata/pprofile v0.134.0/go.mod h1:DRkZ9OsgGN3CkSDYG6cjz2R3H5ItLjxQw0c0TwXDqa4=
 go.opentelemetry.io/collector/pdata/testdata v0.133.0 h1:K0q47qecWVJf0sWbeWfifbJ72TiqR+A2PCsMkCEKvus=
 go.opentelemetry.io/collector/pdata/testdata v0.133.0/go.mod h1:/emFpIox/mi7FucvsSn54KsiMh/iy7BUviqgURNVT6U=
 go.opentelemetry.io/collector/pipeline v1.40.0 h1:QGI1OhTBJ5eBRsfg3mEYsDHu7wdxA2BdKuOV/BeWLqE=

@@ -16,6 +16,7 @@ import (
 	"go.opentelemetry.io/collector/confmap/xconfmap"
 
 	"github.com/synadia-labs/opentelemetry-collector-nats/exporter/natscoreexporter/internal/metadata"
+	"github.com/synadia-labs/opentelemetry-collector-nats/internal/natsclient"
 )
 
 func TestConfigValidate(t *testing.T) {
@@ -71,8 +72,8 @@ func TestConfigValidate(t *testing.T) {
 		{
 			name: "returns nil for complete token configuration",
 			cfg: Config{
-				Auth: AuthConfig{
-					Token: &TokenConfig{
+				Auth: natsclient.AuthConfig{
+					Token: &natsclient.TokenConfig{
 						Token: "token",
 					},
 				},
@@ -82,8 +83,8 @@ func TestConfigValidate(t *testing.T) {
 		{
 			name: "returns error for incomplete username/password auth configuration",
 			cfg: Config{
-				Auth: AuthConfig{
-					User: &UserConfig{
+				Auth: natsclient.AuthConfig{
+					User: &natsclient.UserConfig{
 						Username: "user",
 					},
 				},
@@ -93,12 +94,12 @@ func TestConfigValidate(t *testing.T) {
 		{
 			name: "returns error if NKey auth configured more than once",
 			cfg: Config{
-				Auth: AuthConfig{
-					Nkey: &NkeyConfig{
+				Auth: natsclient.AuthConfig{
+					Nkey: &natsclient.NkeyConfig{
 						PublicKey: "public_key",
 						Seed:      []byte("seed"),
 					},
-					NkeyJWT: &NkeyJWTConfig{
+					NkeyJWT: &natsclient.NkeyJWTConfig{
 						JWT:  "jwt",
 						Seed: []byte("seed"),
 					},
@@ -147,8 +148,8 @@ func TestLoadConfig(t *testing.T) {
 					Subject:              "\"traces\"",
 					BuiltinMarshalerName: "otlp_json",
 				},
-				Auth: AuthConfig{
-					Token: &TokenConfig{
+				Auth: natsclient.AuthConfig{
+					Token: &natsclient.TokenConfig{
 						Token: "token",
 					},
 				},

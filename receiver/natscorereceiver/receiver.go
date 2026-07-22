@@ -12,6 +12,8 @@ import (
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/receiver"
 	"go.uber.org/zap"
+
+	"github.com/synadia-labs/opentelemetry-collector-nats/internal/natsclient"
 )
 
 // unmarshalFunc turns a raw NATS payload into a pdata signal value.
@@ -57,7 +59,12 @@ func (r *natsReceiver[T]) Start(ctx context.Context, _ component.Host) error {
 	// A long-lived context for message handling, decoupled from Start's ctx.
 	r.ctx, r.cancel = context.WithCancel(context.Background())
 
-	conn, err := createNats(ctx, r.cfg)
+	conn, err := natsclient.Connect(ctx, natsclient.Params{
+		Endpoint: r.cfg.Endpoint,
+		Pedantic: r.cfg.Pedantic,
+		TLS:      r.cfg.TLS,
+		Auth:     r.cfg.Auth,
+	})
 	if err != nil {
 		return err
 	}
