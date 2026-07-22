@@ -1,11 +1,12 @@
 module github.com/synadia-labs/opentelemetry-collector-nats/exporter/natscoreexporter
 
-go 1.24.5
+go 1.25.0
 
 require (
-	github.com/nats-io/jwt/v2 v2.7.4
-	github.com/nats-io/nats.go v1.45.0
-	github.com/nats-io/nkeys v0.4.11
+	github.com/nats-io/jwt/v2 v2.8.2
+	github.com/nats-io/nats-server/v2 v2.14.3
+	github.com/nats-io/nats.go v1.51.0
+	github.com/nats-io/nkeys v0.4.16
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/golden v0.133.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/ottl v0.133.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest v0.133.0
@@ -27,6 +28,7 @@ require (
 	github.com/alecthomas/participle/v2 v2.1.4 // indirect
 	github.com/antchfx/xmlquery v1.4.4 // indirect
 	github.com/antchfx/xpath v1.3.5 // indirect
+	github.com/antithesishq/antithesis-sdk-go v0.7.0-default-no-op // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
@@ -41,17 +43,18 @@ require (
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
-	github.com/google/go-tpm v0.9.5 // indirect
+	github.com/google/go-tpm v0.9.8 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/go-version v1.7.0 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
 	github.com/iancoleman/strcase v0.3.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/klauspost/compress v1.18.0 // indirect
+	github.com/klauspost/compress v1.18.6 // indirect
 	github.com/knadh/koanf/maps v0.1.2 // indirect
 	github.com/knadh/koanf/providers/confmap v1.0.0 // indirect
 	github.com/knadh/koanf/v2 v2.2.2 // indirect
 	github.com/magefile/mage v1.15.0 // indirect
+	github.com/minio/highwayhash v1.0.4 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
@@ -91,11 +94,12 @@ require (
 	go.opentelemetry.io/otel/trace v1.37.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/crypto v0.41.0 // indirect
+	golang.org/x/crypto v0.53.0 // indirect
 	golang.org/x/exp v0.0.0-20250819193227-8b4c13bb791b // indirect
-	golang.org/x/net v0.43.0 // indirect
-	golang.org/x/sys v0.35.0 // indirect
-	golang.org/x/text v0.28.0 // indirect
+	golang.org/x/net v0.55.0 // indirect
+	golang.org/x/sys v0.46.0 // indirect
+	golang.org/x/text v0.38.0 // indirect
+	golang.org/x/time v0.15.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250826171959-ef028d996bc1 // indirect
 	google.golang.org/grpc v1.75.0 // indirect
 	google.golang.org/protobuf v1.36.8 // indirect

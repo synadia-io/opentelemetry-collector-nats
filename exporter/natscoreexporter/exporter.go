@@ -7,9 +7,11 @@ import (
 	"context"
 	"errors"
 	"os"
+	"time"
 
 	"github.com/nats-io/jwt/v2"
 	"github.com/nats-io/nats.go"
+	"github.com/nats-io/nats.go/jetstream"
 	"github.com/nats-io/nkeys"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/config/configtls"
@@ -28,7 +30,7 @@ type natsCoreExporter[T any] struct {
 	cfg       *Config
 	grouper   grouper.Grouper[T]
 	marshaler marshaler.Marshaler[T]
-	conn      *nats.Conn
+	publisher publisher
 }
 
 func newNatsCoreExporter[T any](
@@ -144,14 +146,90 @@ func createNats(ctx context.Context, cfg *Config) (*nats.Conn, error) {
 	return conn, nil
 }
 
+// publisher abstracts how marshaled payloads are written to NATS, so the exporter
+// can target either core NATS or JetStream without the export path caring which.
+type publisher interface {
+	publish(ctx context.Context, subject string, data []byte) error
+	close()
+}
+
+// corePublisher publishes with core NATS (fire-and-forget, no delivery guarantee).
+type corePublisher struct {
+	conn *nats.Conn
+}
+
+func (p *corePublisher) publish(_ context.Context, subject string, data []byte) error {
+	return p.conn.Publish(subject, data)
+}
+
+func (p *corePublisher) close() {
+	p.conn.Close()
+}
+
+// jetStreamPublisher publishes with JetStream, blocking until the server
+// acknowledges each message. This gives durable, at-least-once delivery: a
+// publish error is returned to the exporter helper, which retries the batch.
+//
+// A stream whose subjects capture the configured signal subjects must already
+// exist on the server; this exporter does not create or manage streams.
+type jetStreamPublisher struct {
+	conn    *nats.Conn
+	js      jetstream.JetStream
+	timeout time.Duration
+}
+
+func (p *jetStreamPublisher) publish(ctx context.Context, subject string, data []byte) error {
+	if p.timeout > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, p.timeout)
+		defer cancel()
+	}
+	_, err := p.js.Publish(ctx, subject, data)
+	return err
+}
+
+func (p *jetStreamPublisher) close() {
+	p.conn.Close()
+}
+
+// newPublisher connects to NATS and returns a core or JetStream publisher
+// according to cfg.
+func newPublisher(ctx context.Context, cfg *Config) (publisher, error) {
+	conn, err := createNats(ctx, cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	if cfg.JetStream == nil {
+		return &corePublisher{conn: conn}, nil
+	}
+
+	var js jetstream.JetStream
+	if cfg.JetStream.Domain != "" {
+		js, err = jetstream.NewWithDomain(conn, cfg.JetStream.Domain)
+	} else {
+		js, err = jetstream.New(conn)
+	}
+	if err != nil {
+		conn.Close()
+		return nil, err
+	}
+
+	return &jetStreamPublisher{
+		conn:    conn,
+		js:      js,
+		timeout: cfg.JetStream.PublishTimeout,
+	}, nil
+}
+
 func (e *natsCoreExporter[T]) start(ctx context.Context, host component.Host) error {
 	var errs error
 
 	errs = multierr.Append(errs, e.marshaler.Resolve(host))
 
-	conn, err := createNats(ctx, e.cfg)
+	pub, err := newPublisher(ctx, e.cfg)
 	errs = multierr.Append(errs, err)
-	e.conn = conn
+	e.publisher = pub
 
 	return errs
 }
@@ -169,7 +247,7 @@ func (e *natsCoreExporter[T]) export(ctx context.Context, data T) error {
 			continue
 		}
 
-		err = e.conn.Publish(group.Subject, bytes)
+		err = e.publisher.publish(ctx, group.Subject, bytes)
 		if err != nil {
 			errs = multierr.Append(errs, err)
 		}
@@ -178,7 +256,9 @@ func (e *natsCoreExporter[T]) export(ctx context.Context, data T) error {
 }
 
 func (e *natsCoreExporter[T]) shutdown(_ context.Context) error {
-	e.conn.Close()
+	if e.publisher != nil {
+		e.publisher.close()
+	}
 	return nil
 }
 

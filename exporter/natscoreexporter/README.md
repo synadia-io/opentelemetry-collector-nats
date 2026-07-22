@@ -22,6 +22,9 @@ The following configuration options are supported:
 - `endpoint` (default = nats://localhost:4222): The NATS server URL.
 - `pedantic` (default = true): The option to enable/disable [NATS pedantic mode](https://docs.nats.io/nats-concepts/subjects#pedantic-mode).
 - `tls`: See [TLS Configuration Settings](https://github.com/open-telemetry/opentelemetry-collector/blob/main/config/configtls/README.md) for the full set of available options.
+- `jetstream`: When set, signals are published via [JetStream](https://docs.nats.io/nats-concepts/jetstream) (durable, acknowledged delivery) instead of core NATS. Each publish blocks until the server acknowledges persistence, giving at-least-once delivery; a failed publish is returned to the exporter helper and retried. A stream whose subjects capture the configured signal subjects must already exist — this exporter does not create or manage streams.
+  - `domain`: Optional [JetStream domain](https://docs.nats.io/running-a-nats-service/configuration/leafnodes/jetstream_leafnodes) to target (e.g. when publishing through a leaf node to a hub). Defaults to the server's default domain.
+  - `publish_timeout` (default = 0): Maximum time to wait for each publish acknowledgement. `0` imposes no exporter deadline (the surrounding context still applies).
 - `logs`
   - `subject` (default = "otel_logs"): The [OTTL value expression](https://pkg.go.dev/text/template) used to construct NATS subjects for logs.
   - `marshaler` (default = otlp_proto): The name of the built-in marshaler used to marshal logs. See [Built-in Marshalers](#built-in-marshalers).

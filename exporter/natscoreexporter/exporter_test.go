@@ -1,203 +1,132 @@
+// Copyright The OpenTelemetry Authors
+// SPDX-License-Identifier: Apache-2.0
+
 package natscoreexporter
 
-// import (
-// 	"context"
-// 	"testing"
-// 	"time"
+import (
+	"context"
+	"testing"
+	"time"
 
-// 	"github.com/stretchr/testify/assert"
-// 	"go.opentelemetry.io/collector/component"
-// 	"go.opentelemetry.io/collector/component/componenttest"
-// 	"go.opentelemetry.io/collector/exporter/exportertest"
+	"github.com/nats-io/nats.go"
+	"github.com/nats-io/nats.go/jetstream"
+	natstest "github.com/nats-io/nats-server/v2/test"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"go.opentelemetry.io/collector/component/componenttest"
+	"go.opentelemetry.io/collector/exporter/exportertest"
+	"go.opentelemetry.io/collector/pdata/testdata"
 
-// 	"github.com/synadia-labs/opentelemetry-collector-nats/exporter/natscoreexporter/internal/grouper"
-// 	"github.com/synadia-labs/opentelemetry-collector-nats/exporter/natscoreexporter/internal/marshaler"
-// 	"github.com/synadia-labs/opentelemetry-collector-nats/exporter/natscoreexporter/internal/metadata"
-// )
+	"github.com/synadia-labs/opentelemetry-collector-nats/exporter/natscoreexporter/internal/metadata"
+)
 
-// type fakeGrouper struct{}
+// runServer starts an embedded nats-server for a test, optionally with JetStream.
+func runServer(t *testing.T, enableJetStream bool) string {
+	t.Helper()
+	opts := natstest.DefaultTestOptions
+	opts.Port = -1 // random free port
+	if enableJetStream {
+		opts.JetStream = true
+		opts.StoreDir = t.TempDir()
+	}
+	srv := natstest.RunServer(&opts)
+	t.Cleanup(srv.Shutdown)
+	return srv.ClientURL()
+}
 
-// func (g *fakeGrouper) Group(ctx context.Context, data string) ([]grouper.Group[string], error) {
-// 	return []grouper.Group[string]{{Subject: data, Data: data}}, nil
-// }
+// TestExporter_JetStream verifies that, with JetStream configured, exported
+// payloads are published to a stream and acknowledged (durable delivery).
+func TestExporter_JetStream(t *testing.T) {
+	t.Parallel()
 
-// var _ grouper.Grouper[string] = (*fakeGrouper)(nil)
+	url := runServer(t, true)
+	ctx := context.Background()
 
-// type fakeGenericMarshaler struct{}
+	nc, err := nats.Connect(url)
+	require.NoError(t, err)
+	defer nc.Close()
 
-// func (m *fakeGenericMarshaler) MarshalString(sd string) ([]byte, error) {
-// 	return []byte(sd), nil
-// }
+	js, err := jetstream.New(nc)
+	require.NoError(t, err)
 
-// var _ marshaler.GenericMarshaler = (*fakeGenericMarshaler)(nil)
+	// A stream must exist that captures the exporter's default logs subject.
+	stream, err := js.CreateStream(ctx, jetstream.StreamConfig{
+		Name:     "OTEL_LOGS",
+		Subjects: []string{"otel_logs"},
+	})
+	require.NoError(t, err)
 
-// type fakeResolver struct{}
+	cfg := createDefaultConfig().(*Config)
+	cfg.Endpoint = url
+	cfg.JetStream = &JetStreamConfig{PublishTimeout: 5 * time.Second}
 
-// func (r *fakeResolver) Resolve(host component.Host) (marshaler.GenericMarshaler, error) {
-// 	return &fakeGenericMarshaler{}, nil
-// }
+	set := exportertest.NewNopSettings(metadata.Type)
+	exp, err := newNatsCoreLogsExporter(set, cfg)
+	require.NoError(t, err)
 
-// var _ marshaler.Resolver = (*fakeResolver)(nil)
+	require.NoError(t, exp.start(ctx, componenttest.NewNopHost()))
+	require.NoError(t, exp.export(ctx, testdata.GenerateLogs(1)))
+	require.NoError(t, exp.export(ctx, testdata.GenerateLogs(1)))
+	require.NoError(t, exp.shutdown(ctx))
 
-// func fakePick(genericMarshaler marshaler.GenericMarshaler) (marshaler.MarshalFunc[string], error) {
-// 	return genericMarshaler.(*fakeGenericMarshaler).MarshalString, nil
-// }
+	info, err := stream.Info(ctx)
+	require.NoError(t, err)
+	assert.Equal(t, uint64(2), info.State.Msgs, "both exports should be persisted and acked by the stream")
+}
 
-// var _ marshaler.PickFunc[string] = fakePick
+// TestExporter_JetStream_NoStream verifies that publishing to a subject with no
+// bound stream surfaces an error (i.e. we are genuinely waiting for the ack).
+func TestExporter_JetStream_NoStream(t *testing.T) {
+	t.Parallel()
 
-// func newNatsCoreExporterWithFakes(cfg *Config) *natsCoreExporter[string] {
-// 	set := exportertest.NewNopSettings(metadata.Type)
-// 	grouper := &fakeGrouper{}
-// 	resolver := &fakeResolver{}
-// 	marshaler := marshaler.NewMarshaler(resolver, fakePick)
-// 	return &natsCoreExporter[string]{
-// 		set:       set,
-// 		cfg:       cfg,
-// 		grouper:   grouper,
-// 		marshaler: marshaler,
-// 	}
-// }
+	url := runServer(t, true)
+	ctx := context.Background()
 
-// func TestNatsCoreExporter(t *testing.T) {
-// 	t.Parallel()
+	cfg := createDefaultConfig().(*Config)
+	cfg.Endpoint = url
+	cfg.JetStream = &JetStreamConfig{PublishTimeout: 2 * time.Second}
 
-// 	withTestServer(t, func(cfg *Config, recorder *recorder) {
-// 		exporter := newNatsCoreExporterWithFakes(cfg)
+	set := exportertest.NewNopSettings(metadata.Type)
+	exp, err := newNatsCoreLogsExporter(set, cfg)
+	require.NoError(t, err)
 
-// 		err := exporter.start(t.Context(), componenttest.NewNopHost())
-// 		assert.NoError(t, err)
+	require.NoError(t, exp.start(ctx, componenttest.NewNopHost()))
+	t.Cleanup(func() { _ = exp.shutdown(ctx) })
 
-// 		err = exporter.export(t.Context(), "test")
-// 		assert.NoError(t, err)
-// 		err = exporter.export(t.Context(), "test")
-// 		assert.NoError(t, err)
+	err = exp.export(ctx, testdata.GenerateLogs(1))
+	assert.Error(t, err, "publish to an uncaptured subject should not be acked")
+}
 
-// 		err = exporter.shutdown(t.Context())
-// 		assert.NoError(t, err)
+// TestExporter_CoreNATS verifies the core-NATS path (JetStream unset) still
+// publishes to subscribers.
+func TestExporter_CoreNATS(t *testing.T) {
+	t.Parallel()
 
-// 		msgs := recorder.record(2, 5*time.Second)
-// 		for _, msg := range msgs {
-// 			t.Logf("%s: %s", msg.Subject, string(msg.Data))
-// 		}
-// 	})
-// }
+	url := runServer(t, false)
+	ctx := context.Background()
 
-// func TestNewNatsCoreLogsExporter(t *testing.T) {
-// 	t.Parallel()
+	nc, err := nats.Connect(url)
+	require.NoError(t, err)
+	defer nc.Close()
 
-// 	withTestServer(t, func(cfg *Config, recorder *recorder) {
-// 		set := exportertest.NewNopSettings(metadata.Type)
-// 		exporter, err := newNatsCoreLogsExporter(set, cfg)
-// 		assert.NoError(t, err)
+	sub, err := nc.SubscribeSync("otel_logs")
+	require.NoError(t, err)
+	require.NoError(t, nc.Flush())
 
-// 		err = exporter.start(t.Context(), componenttest.NewNopHost())
-// 		assert.NoError(t, err)
+	cfg := createDefaultConfig().(*Config)
+	cfg.Endpoint = url // JetStream nil -> core path
 
-// 		err = exporter.export(t.Context(), generateLifecycleTestLogs())
-// 		assert.NoError(t, err)
-// 		err = exporter.export(t.Context(), generateLifecycleTestLogs())
-// 		assert.NoError(t, err)
+	set := exportertest.NewNopSettings(metadata.Type)
+	exp, err := newNatsCoreLogsExporter(set, cfg)
+	require.NoError(t, err)
 
-// 		err = exporter.shutdown(t.Context())
-// 		assert.NoError(t, err)
+	require.NoError(t, exp.start(ctx, componenttest.NewNopHost()))
+	require.NoError(t, exp.export(ctx, testdata.GenerateLogs(1)))
 
-// 		msgs := recorder.record(2, 5*time.Second)
-// 		for _, msg := range msgs {
-// 			t.Logf("%s: %s", msg.Subject, string(msg.Data))
-// 		}
-// 	})
-// }
+	msg, err := sub.NextMsg(5 * time.Second)
+	require.NoError(t, err)
+	assert.Equal(t, "otel_logs", msg.Subject)
+	assert.NotEmpty(t, msg.Data)
 
-// func TestNewNatsCoreMetricsExporter(t *testing.T) {
-// 	t.Parallel()
-
-// 	withTestServer(t, func(cfg *Config, recorder *recorder) {
-// 		set := exportertest.NewNopSettings(metadata.Type)
-// 		exporter, err := newNatsCoreMetricsExporter(set, cfg)
-// 		assert.NoError(t, err)
-
-// 		err = exporter.start(t.Context(), componenttest.NewNopHost())
-// 		assert.NoError(t, err)
-
-// 		err = exporter.export(t.Context(), generateLifecycleTestMetrics())
-// 		assert.NoError(t, err)
-// 		err = exporter.export(t.Context(), generateLifecycleTestMetrics())
-// 		assert.NoError(t, err)
-
-// 		err = exporter.shutdown(t.Context())
-// 		assert.NoError(t, err)
-
-// 		msgs := recorder.record(2, 5*time.Second)
-// 		for _, msg := range msgs {
-// 			t.Logf("%s: %s", msg.Subject, string(msg.Data))
-// 		}
-// 	})
-// }
-
-// func TestNewNatsCoreTracesExporter(t *testing.T) {
-// 	t.Parallel()
-
-// 	withTestServer(t, func(cfg *Config, recorder *recorder) {
-// 		set := exportertest.NewNopSettings(metadata.Type)
-// 		exporter, err := newNatsCoreTracesExporter(set, cfg)
-// 		assert.NoError(t, err)
-
-// 		err = exporter.start(t.Context(), componenttest.NewNopHost())
-// 		assert.NoError(t, err)
-
-// 		err = exporter.export(t.Context(), generateLifecycleTestTraces())
-// 		assert.NoError(t, err)
-// 		err = exporter.export(t.Context(), generateLifecycleTestTraces())
-// 		assert.NoError(t, err)
-
-// 		err = exporter.shutdown(t.Context())
-// 		assert.NoError(t, err)
-
-// 		msgs := recorder.record(2, 5*time.Second)
-// 		for _, msg := range msgs {
-// 			t.Logf("%s: %s", msg.Subject, string(msg.Data))
-// 		}
-// 	})
-// }
-
-// func TestSetNatsNkeyOption(t *testing.T) {
-// 	t.Parallel()
-
-// 	withTestServer(t, func(cfg *Config, recorder *recorder) {
-// 		exporter := newNatsCoreExporterWithFakes(cfg)
-
-// 		err := exporter.start(t.Context(), componenttest.NewNopHost())
-// 		assert.NoError(t, err)
-
-// 		err = exporter.shutdown(t.Context())
-// 		assert.NoError(t, err)
-// 	})
-// }
-
-// func TestSetNatsNkeyJWTOption(t *testing.T) {
-// 	t.Parallel()
-
-// 	withTestServer(t, func(cfg *Config, recorder *recorder) {
-// 		exporter := newNatsCoreExporterWithFakes(cfg)
-
-// 		err := exporter.start(t.Context(), componenttest.NewNopHost())
-// 		assert.NoError(t, err)
-
-// 		err = exporter.shutdown(t.Context())
-// 		assert.NoError(t, err)
-// 	})
-// }
-
-// func TestSetNatsNkeyUserFileOption(t *testing.T) {
-// 	t.Parallel()
-
-// 	withTestServer(t, func(cfg *Config, recorder *recorder) {
-// 		exporter := newNatsCoreExporterWithFakes(cfg)
-
-// 		err := exporter.start(t.Context(), componenttest.NewNopHost())
-// 		assert.NoError(t, err)
-
-// 		err = exporter.shutdown(t.Context())
-// 		assert.NoError(t, err)
-// 	})
-// }
+	require.NoError(t, exp.shutdown(ctx))
+}

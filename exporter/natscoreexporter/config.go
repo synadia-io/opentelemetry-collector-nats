@@ -6,6 +6,7 @@ package natscoreexporter // import "github.com/synadia-labs/opentelemetry-collec
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/component/componenttest"
@@ -133,6 +134,29 @@ type AuthConfig struct {
 	_ struct{}
 }
 
+// JetStreamConfig configures publishing via NATS JetStream (durable, acknowledged
+// delivery) instead of core NATS. When present, every exported payload is published
+// with JetStream and the publish blocks until the server acknowledges persistence.
+//
+// A stream must already exist on the server whose subjects capture the configured
+// signal subjects; this exporter does not create or manage streams.
+//
+// See: https://docs.nats.io/nats-concepts/jetstream
+type JetStreamConfig struct {
+	// Domain optionally selects a JetStream domain, e.g. when publishing through a
+	// leaf node to a hub. Empty uses the server's default domain.
+	//
+	// See: https://docs.nats.io/running-a-nats-service/configuration/leafnodes/jetstream_leafnodes
+	Domain string `mapstructure:"domain"`
+
+	// PublishTimeout bounds how long to wait for each publish acknowledgement.
+	// Zero means no exporter-imposed deadline (the surrounding context still applies).
+	PublishTimeout time.Duration `mapstructure:"publish_timeout"`
+
+	// Prevent unkeyed literal initialization
+	_ struct{}
+}
+
 // Config defines the configuration for the NATS core exporter.
 type Config struct {
 	// Endpoint is the NATS server URL.
@@ -143,6 +167,10 @@ type Config struct {
 
 	// TLS holds the TLS configuration for the NATS client.
 	TLS configtls.ClientConfig `mapstructure:"tls"`
+
+	// JetStream, when set, publishes via NATS JetStream (durable, acknowledged
+	// delivery) instead of core NATS.
+	JetStream *JetStreamConfig `mapstructure:"jetstream"`
 
 	// Logs holds the configuration for the logs signal.
 	Logs LogsConfig `mapstructure:"logs"`
@@ -277,6 +305,13 @@ func (c *NkeyUserFileConfig) Validate() error {
 	return nil
 }
 
+func (c *JetStreamConfig) Validate() error {
+	if c.PublishTimeout < 0 {
+		return errors.New("jetstream publish_timeout must not be negative")
+	}
+	return nil
+}
+
 func (c *AuthConfig) Validate() error {
 	var errs error
 
@@ -339,6 +374,11 @@ func (c *Config) Validate() error {
 	}
 	if err := c.Auth.Validate(); err != nil {
 		errs = multierr.Append(errs, err)
+	}
+	if c.JetStream != nil {
+		if err := c.JetStream.Validate(); err != nil {
+			errs = multierr.Append(errs, err)
+		}
 	}
 	return errs
 }
