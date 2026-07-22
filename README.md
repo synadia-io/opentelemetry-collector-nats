@@ -28,19 +28,30 @@ This is a **transport** for OTLP data (NATS as the pipe). It is *not* observabil
 
 | Component | Path | Signals | Status |
 |-----------|------|---------|--------|
-| NATS Core exporter | [`exporter/natscoreexporter`](./exporter/natscoreexporter) | traces, metrics, logs | in development (Core NATS) |
+| NATS Core exporter | [`exporter/natscoreexporter`](./exporter/natscoreexporter) | traces, metrics, logs | in development (Core NATS + JetStream) |
+| NATS Core receiver | [`receiver/natscorereceiver`](./receiver/natscorereceiver) | traces, metrics, logs | in development (Core NATS + JetStream durable consumer) |
 
 Highlights of the exporter today:
 
 - Generic over logs / metrics / traces.
 - **OTTL-based subject routing** — static or dynamic NATS subjects derived from signal content.
 - Pluggable encoding: built-in `otlp_proto` / `otlp_json` marshalers, or an encoding extension.
+- **JetStream publish** — optional durable, acknowledged delivery.
 - Full NATS auth matrix: user/password, token, NKey, NKey+JWT, NKey user file (creds), plus TLS.
+
+Highlights of the receiver today:
+
+- Core NATS subscription, or a **JetStream durable consumer** that acks after the
+  pipeline accepts a message, naks on downstream error (redelivery), and terminates
+  poison payloads that fail to decode.
+- Built-in `otlp_proto` / `otlp_json` decoding; same NATS auth matrix as the exporter.
 
 ## Roadmap
 
-- [ ] **JetStream delivery** for the exporter (durable, acked, back-pressured publish) — the headline reason to prefer NATS over the plain OTLP exporter.
-- [ ] **NATS receiver** (Core + JetStream durable consumer, ack after downstream delivery).
+- [x] **JetStream delivery** for the exporter (durable, acked publish) — the headline reason to prefer NATS over the plain OTLP exporter.
+- [x] **NATS receiver** (Core + JetStream durable consumer, ack after downstream delivery).
+- [ ] Extract shared NATS connection/auth into an internal `natsclient` module (currently duplicated across exporter and receiver).
+- [ ] Async/batched JetStream publish for higher throughput; encoding-extension support on the receiver.
 - [ ] Test coverage to the ≥80% donation bar, incl. integration tests against a real server.
 - [ ] Assemble ≥3 cross-company code owners and open the donation PR.
 

@@ -1,0 +1,13 @@
+type: natscore
+
+status:
+  class: receiver
+  stability:
+    development: [metrics, logs, traces]
+  distributions: []
+  codeowners:
+    # TODO: add code owners (sponsor + maintainers) before proposing donation.
+    active: []
+
+tests:
+  skip_lifecycle: true
