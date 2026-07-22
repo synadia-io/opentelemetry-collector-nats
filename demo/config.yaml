@@ -1,0 +1,45 @@
+# Collector config for the demo.
+#
+# Two trace pipelines in one process:
+#   produce:  OTLP in  -> natscore exporter  -> JetStream stream OTEL_SPANS
+#   consume:  natscore receiver (durable consumer) -> debug (console)
+#
+# So an injected trace travels: OTLP -> our exporter -> NATS/JetStream -> our
+# receiver -> printed to the console.
+
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 127.0.0.1:4318
+
+  natscore:
+    endpoint: nats://127.0.0.1:4222
+    jetstream:
+      ack_wait: 30s
+    traces:
+      subject: otel_spans
+      stream: OTEL_SPANS
+      durable: demo_consumer
+
+exporters:
+  natscore:
+    endpoint: nats://127.0.0.1:4222
+    # Empty block => JetStream publish enabled (durable, acknowledged).
+    jetstream: {}
+    # traces.subject defaults to otel_spans; marshaler defaults to otlp_proto.
+
+  debug:
+    verbosity: detailed
+
+service:
+  telemetry:
+    metrics:
+      level: none
+  pipelines:
+    traces/produce:
+      receivers: [otlp]
+      exporters: [natscore]
+    traces/consume:
+      receivers: [natscore]
+      exporters: [debug]

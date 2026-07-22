@@ -52,6 +52,7 @@ Highlights of the receiver today:
 - [x] **NATS receiver** (Core + JetStream durable consumer, ack after downstream delivery).
 - [x] Extract shared NATS connection/auth into an internal `natsclient` module.
 - [x] Encoding-extension support on the receiver (parity with the exporter).
+- [x] Runnable `ocb` demo building a Collector with both components (`demo/`).
 - [ ] Async/batched JetStream publish for higher throughput.
 - [ ] Test coverage to the ≥80% donation bar, incl. integration tests against a real server.
 - [ ] Assemble ≥3 cross-company code owners and open the donation PR.
@@ -66,6 +67,10 @@ exporters:
 ```
 
 (Pin to a tag once one is published; until then, use a `replace` pointing at a local checkout.)
+
+See [`demo/`](./demo) for a complete, runnable example — it builds a Collector with
+both components and pushes a trace through them (`OTLP → exporter → JetStream →
+receiver → console`) with a single `./run.sh`.
 
 ## Attribution
 
