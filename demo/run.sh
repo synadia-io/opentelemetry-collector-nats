@@ -10,9 +10,6 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 export GOTOOLCHAIN=auto
-# The generated Collector under _build is its own module; ignore the repo's
-# go.work so it (and the go-run helpers) resolve standalone.
-export GOWORK=off
 
 NATS_VERSION="v2.14.3"
 BUILDER_VERSION="v0.133.0"

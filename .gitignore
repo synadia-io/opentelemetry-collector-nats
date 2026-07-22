@@ -5,9 +5,6 @@
 coverage.txt
 coverage.html
 
-# go.work local checksums (keep go.work itself)
-go.work.sum
-
 # Editor / OS
 .idea/
 .vscode/
