@@ -1,0 +1,36 @@
+# Shared make targets, included by each component's Makefile.
+# Targets run in the including component's directory.
+
+GOCMD ?= go
+
+.DEFAULT_GOAL := test
+
+.PHONY: test
+test:
+	$(GOCMD) test ./...
+
+.PHONY: test-race
+test-race:
+	$(GOCMD) test -race ./...
+
+.PHONY: fmt
+fmt:
+	$(GOCMD) fmt ./...
+
+.PHONY: vet
+vet:
+	$(GOCMD) vet ./...
+
+.PHONY: tidy
+tidy:
+	$(GOCMD) mod tidy
+
+.PHONY: build
+build:
+	$(GOCMD) build ./...
+
+# Regenerate mdatagen output. Requires mdatagen on PATH
+# (go install go.opentelemetry.io/collector/cmd/mdatagen@latest).
+.PHONY: generate
+generate:
+	$(GOCMD) generate ./...

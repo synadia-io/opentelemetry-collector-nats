@@ -1,0 +1,23 @@
+OpenTelemetry Collector — NATS components
+Copyright The OpenTelemetry Authors
+
+This product includes software developed at The OpenTelemetry Authors
+(https://opentelemetry.io/), licensed under the Apache License, Version 2.0.
+
+------------------------------------------------------------------------------
+Attribution
+------------------------------------------------------------------------------
+
+The `exporter/natscoreexporter` component is derived from prior art originally
+authored by Ethan Kim (https://github.com/EthanKim8683) and contributed to the
+opentelemetry-collector-contrib project in the following (unmerged) pull
+requests, all tracked under issue #39540:
+
+  - https://github.com/open-telemetry/opentelemetry-collector-contrib/pull/42186
+  - https://github.com/open-telemetry/opentelemetry-collector-contrib/pull/42304
+  - https://github.com/open-telemetry/opentelemetry-collector-contrib/pull/42452
+
+The original source carries "Copyright The OpenTelemetry Authors" headers, which
+are preserved unmodified. This repository adapts that work into a standalone Go
+module for incubation ahead of a proposed donation back to
+opentelemetry-collector-contrib.
