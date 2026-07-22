@@ -5,7 +5,6 @@ package natscoreexporter // import "github.com/synadia-labs/opentelemetry-collec
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/nats-io/nats.go"
@@ -166,13 +165,15 @@ func (e *natsCoreExporter[T]) shutdown(_ context.Context) error {
 }
 
 func createResolver(cfg *SignalConfig) (marshaler.Resolver, error) {
-	if cfg.BuiltinMarshalerName != "" {
-		return marshaler.NewBuiltinMarshalerResolver(cfg.BuiltinMarshalerName)
-	} else if cfg.EncodingExtensionName != "" {
+	if cfg.EncodingExtensionName != "" {
 		return marshaler.NewEncodingExtensionResolver(cfg.EncodingExtensionName)
-	} else {
-		return nil, errors.New("no built-in marshaler or encoding extension configured")
 	}
+	// Built-in marshaler; an empty name defaults to otlp_proto.
+	name := cfg.BuiltinMarshalerName
+	if name == "" {
+		name = marshaler.OtlpProtoBuiltinMarshalerName
+	}
+	return marshaler.NewBuiltinMarshalerResolver(name)
 }
 
 func newNatsCoreLogsExporter(set exporter.Settings, cfg *Config) (*natsCoreExporter[plog.Logs], error) {

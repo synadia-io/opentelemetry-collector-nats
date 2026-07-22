@@ -169,3 +169,24 @@ func TestLoadConfig(t *testing.T) {
 		})
 	}
 }
+
+func TestDefaultConfigLazyMarshaler(t *testing.T) {
+	t.Parallel()
+
+	// The built-in marshaler default (otlp_proto) is applied lazily at resolution,
+	// not baked into the default config, so configuring an encoding extension does
+	// not conflict with a default marshaler.
+	cfg := createDefaultConfig().(*Config)
+	assert.Empty(t, cfg.Logs.BuiltinMarshalerName)
+	assert.Empty(t, cfg.Metrics.BuiltinMarshalerName)
+	assert.Empty(t, cfg.Traces.BuiltinMarshalerName)
+
+	// An encoding extension without a built-in marshaler is valid (no conflict).
+	cfg.Logs.EncodingExtensionName = "otlp_encoding"
+	assert.NoError(t, cfg.Logs.Validate())
+
+	// An empty signal config still resolves (defaults to otlp_proto).
+	resolver, err := createResolver((*SignalConfig)(&cfg.Metrics))
+	require.NoError(t, err)
+	require.NotNil(t, resolver)
+}

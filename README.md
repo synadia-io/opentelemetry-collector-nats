@@ -51,7 +51,8 @@ Highlights of the receiver today:
 - [x] **JetStream delivery** for the exporter (durable, acked publish) — the headline reason to prefer NATS over the plain OTLP exporter.
 - [x] **NATS receiver** (Core + JetStream durable consumer, ack after downstream delivery).
 - [x] Extract shared NATS connection/auth into an internal `natsclient` module.
-- [ ] Async/batched JetStream publish for higher throughput; encoding-extension support on the receiver.
+- [x] Encoding-extension support on the receiver (parity with the exporter).
+- [ ] Async/batched JetStream publish for higher throughput.
 - [ ] Test coverage to the ≥80% donation bar, incl. integration tests against a real server.
 - [ ] Assemble ≥3 cross-company code owners and open the donation PR.
 
