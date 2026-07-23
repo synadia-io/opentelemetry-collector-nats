@@ -6,7 +6,8 @@ status:
     development: [metrics, logs, traces]
   distributions: []
   codeowners:
-    # TODO: add code owners (sponsor + maintainers) before proposing donation.
+    # TODO: assemble >=3 cross-company code owners (incl. a sponsor who is an
+    # approver/maintainer) before opening the donation PR. See tracking issue #39540.
     active: []
 
 tests:

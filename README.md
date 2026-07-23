@@ -14,16 +14,6 @@ Tracking issue: [open-telemetry/opentelemetry-collector-contrib#39540](https://g
 
 > Status: **early / in development.** Not yet donated, not yet in any Collector distribution.
 
-## Why
-
-NATS — especially **JetStream** — is a strong fit for reliably streaming telemetry
-from edge/constrained environments to the cloud (durable, acked, replicated delivery,
-store-and-forward over flaky links). Kafka already has first-class exporter/receiver
-components in the Collector; NATS does not. These components close that gap.
-
-This is a **transport** for OTLP data (NATS as the pipe). It is *not* observability
-*of* NATS message flow / JetStream activity — that is a separate concern.
-
 ## Components
 
 | Component | Path | Signals | Status |
