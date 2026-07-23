@@ -53,9 +53,31 @@ Highlights of the receiver today:
 - [x] Extract shared NATS connection/auth into an internal `natsclient` module.
 - [x] Encoding-extension support on the receiver (parity with the exporter).
 - [x] Runnable `ocb` demo building a Collector with both components (`demo/`).
+- [x] Cross-component E2E round-trip tests (`test/e2e/`).
 - [ ] Async/batched JetStream publish for higher throughput.
 - [ ] Test coverage to the ≥80% donation bar, incl. integration tests against a real server.
 - [ ] Assemble ≥3 cross-company code owners and open the donation PR.
+
+## Testing
+
+- **Per-component** (`exporter/…`, `receiver/…`): each is tested against a real
+  embedded `nats-server` — JetStream, acks, redelivery, poison-message handling,
+  encoding extensions. CI needs only Go, no Docker.
+- **Cross-component round trip** (`test/e2e/`): the exporter publishes to NATS and
+  the receiver reads it back through the public factories, asserting fidelity with
+  `pdatatest`. This is the one test that guards the two components' shared wire
+  contract — a drift in encoding or subject naming fails here even when each
+  component's own tests pass.
+- **Full Collector** (`demo/`): `run.sh` builds a Collector with `ocb` and drives a
+  trace through both components end to end.
+
+Run the Go tests per module:
+
+```sh
+for m in internal/natsclient exporter/natscoreexporter receiver/natscorereceiver test/e2e; do
+  ( cd "$m" && go test ./... )
+done
+```
 
 ## Building into a Collector
 
