@@ -1,0 +1,5 @@
+# Keep the build context small and avoid copying build outputs / VCS metadata.
+.git
+**/_build
+demo/_build
+*.log

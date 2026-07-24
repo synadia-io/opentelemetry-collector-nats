@@ -1,0 +1,67 @@
+# Cluster-trial Collector config — Scenario A.
+#
+# Runs LOCALLY on your laptop but talks to the REAL cluster NATS
+# (nats1.gcp.iamusingtheinternet.com) over TLS, using admin.creds and
+# JetStream domain test01. One process, two trace pipelines:
+#
+#   produce:  OTLP in            -> natscore exporter -> JetStream stream OTEL_TEST (subject otel_test)
+#   consume:  natscore receiver  -> debug (console)
+#
+# So an injected trace travels: OTLP -> our exporter -> real NATS/JetStream ->
+# our receiver -> printed to the console. This exercises the real TLS + real
+# .creds auth + real JetStream domain without touching the order-pipeline.
+#
+# Prereq: the OTEL_TEST stream must exist (components never create streams):
+#   nats --server tls://nats1.gcp.iamusingtheinternet.com:4222 \
+#        --creds /Users/erik/projects/nats-argocd-stack/admin.creds \
+#        --js-domain test01 \
+#        stream add OTEL_TEST --subjects=otel_test \
+#        --storage=file --replicas=1 --retention=limits --discard=old \
+#        --max-age=1h --defaults
+
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 127.0.0.1:4318
+
+  natscore:
+    endpoint: tls://nats1.gcp.iamusingtheinternet.com:4222
+    # .creds file (decentralized JWT/NKey) — maps to nats.UserCredentials.
+    nkey_user_file:
+      user_file: /Users/erik/projects/nats-argocd-stack/admin.creds
+    jetstream:
+      domain: test01
+      ack_wait: 30s
+      max_deliver: 5
+    traces:
+      subject: otel_test          # plain NATS subject (receiver side)
+      encoding: otlp_proto
+      stream: OTEL_TEST
+      durable: otel_test_consumer
+
+exporters:
+  natscore:
+    endpoint: tls://nats1.gcp.iamusingtheinternet.com:4222
+    nkey_user_file:
+      user_file: /Users/erik/projects/nats-argocd-stack/admin.creds
+    jetstream:
+      domain: test01              # durable, acknowledged publish into OTEL_TEST
+    traces:
+      subject: '"otel_test"'      # OTTL literal (exporter side) — note the inner quotes
+      marshaler: otlp_proto
+
+  debug:
+    verbosity: detailed
+
+service:
+  telemetry:
+    metrics:
+      level: none
+  pipelines:
+    traces/produce:
+      receivers: [otlp]
+      exporters: [natscore]
+    traces/consume:
+      receivers: [natscore]
+      exporters: [debug]
