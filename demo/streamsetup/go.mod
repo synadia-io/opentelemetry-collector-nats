@@ -1,4 +1,4 @@
-module github.com/synadia-labs/opentelemetry-collector-nats/demo/streamsetup
+module github.com/suckatrash/opentelemetry-collector-nats/demo/streamsetup
 
 go 1.25.0
 

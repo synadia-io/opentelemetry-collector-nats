@@ -21,8 +21,8 @@ import (
 	"go.opentelemetry.io/collector/pdata/testdata"
 	"go.opentelemetry.io/collector/receiver/receivertest"
 
-	"github.com/synadia-labs/opentelemetry-collector-nats/exporter/natscoreexporter"
-	"github.com/synadia-labs/opentelemetry-collector-nats/receiver/natscorereceiver"
+	"github.com/suckatrash/opentelemetry-collector-nats/exporter/natscoreexporter"
+	"github.com/suckatrash/opentelemetry-collector-nats/receiver/natscorereceiver"
 )
 
 // runJetStreamServer starts an embedded JetStream-enabled nats-server and returns

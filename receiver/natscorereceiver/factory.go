@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package natscorereceiver // import "github.com/synadia-labs/opentelemetry-collector-nats/receiver/natscorereceiver"
+package natscorereceiver // import "github.com/suckatrash/opentelemetry-collector-nats/receiver/natscorereceiver"
 
 import (
 	"context"
@@ -15,8 +15,8 @@ import (
 	"go.opentelemetry.io/collector/pdata/ptrace"
 	"go.opentelemetry.io/collector/receiver"
 
-	"github.com/synadia-labs/opentelemetry-collector-nats/internal/natsclient"
-	"github.com/synadia-labs/opentelemetry-collector-nats/receiver/natscorereceiver/internal/metadata"
+	"github.com/suckatrash/opentelemetry-collector-nats/internal/natsclient"
+	"github.com/suckatrash/opentelemetry-collector-nats/receiver/natscorereceiver/internal/metadata"
 )
 
 const (

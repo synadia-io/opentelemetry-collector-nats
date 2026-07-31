@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package natscorereceiver // import "github.com/synadia-labs/opentelemetry-collector-nats/receiver/natscorereceiver"
+package natscorereceiver // import "github.com/suckatrash/opentelemetry-collector-nats/receiver/natscorereceiver"
 
 import (
 	"fmt"

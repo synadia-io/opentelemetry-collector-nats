@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package natscoreexporter // import "github.com/synadia-labs/opentelemetry-collector-nats/exporter/natscoreexporter"
+package natscoreexporter // import "github.com/suckatrash/opentelemetry-collector-nats/exporter/natscoreexporter"
 
 import (
 	"context"
@@ -16,9 +16,9 @@ import (
 	"go.opentelemetry.io/collector/pdata/ptrace"
 	"go.uber.org/multierr"
 
-	"github.com/synadia-labs/opentelemetry-collector-nats/exporter/natscoreexporter/internal/grouper"
-	"github.com/synadia-labs/opentelemetry-collector-nats/exporter/natscoreexporter/internal/marshaler"
-	"github.com/synadia-labs/opentelemetry-collector-nats/internal/natsclient"
+	"github.com/suckatrash/opentelemetry-collector-nats/exporter/natscoreexporter/internal/grouper"
+	"github.com/suckatrash/opentelemetry-collector-nats/exporter/natscoreexporter/internal/marshaler"
+	"github.com/suckatrash/opentelemetry-collector-nats/internal/natsclient"
 )
 
 type natsCoreExporter[T any] struct {

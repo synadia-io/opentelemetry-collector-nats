@@ -9,3 +9,8 @@ coverage.html
 .idea/
 .vscode/
 .DS_Store
+
+# Local-only configs pointing at a private/personal NATS cluster (real hosts,
+# .creds paths, JetStream domains). Keep the plumbing usable locally, but never
+# commit environment-specific identifiers.
+demo/cluster-trial/

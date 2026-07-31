@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package natscorereceiver // import "github.com/synadia-labs/opentelemetry-collector-nats/receiver/natscorereceiver"
+package natscorereceiver // import "github.com/suckatrash/opentelemetry-collector-nats/receiver/natscorereceiver"
 
 import (
 	"errors"
@@ -12,7 +12,7 @@ import (
 	"go.opentelemetry.io/collector/config/configtls"
 	"go.uber.org/multierr"
 
-	"github.com/synadia-labs/opentelemetry-collector-nats/internal/natsclient"
+	"github.com/suckatrash/opentelemetry-collector-nats/internal/natsclient"
 )
 
 // SignalConfig defines the per-signal receive configuration.

@@ -3,7 +3,7 @@
 
 // Package natsclient provides shared NATS connection and authentication
 // configuration used by the NATS Collector components (exporter and receiver).
-package natsclient // import "github.com/synadia-labs/opentelemetry-collector-nats/internal/natsclient"
+package natsclient // import "github.com/suckatrash/opentelemetry-collector-nats/internal/natsclient"
 
 import (
 	"errors"

@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package natscoreexporter // import "github.com/synadia-labs/opentelemetry-collector-nats/exporter/natscoreexporter"
+package natscoreexporter // import "github.com/suckatrash/opentelemetry-collector-nats/exporter/natscoreexporter"
 
 import (
 	"errors"
@@ -17,8 +17,8 @@ import (
 	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/ottl/contexts/ottlmetric"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/ottl/contexts/ottlspan"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/ottl/ottlfuncs"
-	"github.com/synadia-labs/opentelemetry-collector-nats/exporter/natscoreexporter/internal/marshaler"
-	"github.com/synadia-labs/opentelemetry-collector-nats/internal/natsclient"
+	"github.com/suckatrash/opentelemetry-collector-nats/exporter/natscoreexporter/internal/marshaler"
+	"github.com/suckatrash/opentelemetry-collector-nats/internal/natsclient"
 )
 
 // SignalConfig defines the configuration for a signal type.

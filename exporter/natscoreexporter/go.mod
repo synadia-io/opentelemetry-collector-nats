@@ -1,4 +1,4 @@
-module github.com/synadia-labs/opentelemetry-collector-nats/exporter/natscoreexporter
+module github.com/suckatrash/opentelemetry-collector-nats/exporter/natscoreexporter
 
 go 1.25.0
 
@@ -9,7 +9,7 @@ require (
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/ottl v0.133.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest v0.133.0
 	github.com/stretchr/testify v1.11.1
-	github.com/synadia-labs/opentelemetry-collector-nats/internal/natsclient v0.0.0-00010101000000-000000000000
+	github.com/suckatrash/opentelemetry-collector-nats/internal/natsclient v0.0.0-00010101000000-000000000000
 	go.opentelemetry.io/collector/component v1.40.0
 	go.opentelemetry.io/collector/component/componenttest v0.133.0
 	go.opentelemetry.io/collector/config/configtls v1.39.0
@@ -107,4 +107,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/synadia-labs/opentelemetry-collector-nats/internal/natsclient => ../../internal/natsclient
+replace github.com/suckatrash/opentelemetry-collector-nats/internal/natsclient => ../../internal/natsclient

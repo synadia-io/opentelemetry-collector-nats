@@ -1,4 +1,4 @@
-module github.com/synadia-labs/opentelemetry-collector-nats/test/e2e
+module github.com/suckatrash/opentelemetry-collector-nats/test/e2e
 
 go 1.25.0
 
@@ -7,8 +7,8 @@ require (
 	github.com/nats-io/nats.go v1.51.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest v0.133.0
 	github.com/stretchr/testify v1.11.1
-	github.com/synadia-labs/opentelemetry-collector-nats/exporter/natscoreexporter v0.0.0
-	github.com/synadia-labs/opentelemetry-collector-nats/receiver/natscorereceiver v0.0.0
+	github.com/suckatrash/opentelemetry-collector-nats/exporter/natscoreexporter v0.0.0
+	github.com/suckatrash/opentelemetry-collector-nats/receiver/natscorereceiver v0.0.0
 	go.opentelemetry.io/collector/component/componenttest v0.133.0
 	go.opentelemetry.io/collector/consumer/consumertest v0.133.0
 	go.opentelemetry.io/collector/exporter/exportertest v0.133.0
@@ -58,7 +58,7 @@ require (
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/ottl v0.133.0 // indirect
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatautil v0.133.0 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
-	github.com/synadia-labs/opentelemetry-collector-nats/internal/natsclient v0.0.0-00010101000000-000000000000 // indirect
+	github.com/suckatrash/opentelemetry-collector-nats/internal/natsclient v0.0.0-00010101000000-000000000000 // indirect
 	github.com/twmb/murmur3 v1.1.8 // indirect
 	github.com/ua-parser/uap-go v0.0.0-20250326155420-f7f5a2f9f5bc // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
@@ -107,8 +107,8 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/synadia-labs/opentelemetry-collector-nats/exporter/natscoreexporter => ../../exporter/natscoreexporter
+replace github.com/suckatrash/opentelemetry-collector-nats/exporter/natscoreexporter => ../../exporter/natscoreexporter
 
-replace github.com/synadia-labs/opentelemetry-collector-nats/receiver/natscorereceiver => ../../receiver/natscorereceiver
+replace github.com/suckatrash/opentelemetry-collector-nats/receiver/natscorereceiver => ../../receiver/natscorereceiver
 
-replace github.com/synadia-labs/opentelemetry-collector-nats/internal/natsclient => ../../internal/natsclient
+replace github.com/suckatrash/opentelemetry-collector-nats/internal/natsclient => ../../internal/natsclient

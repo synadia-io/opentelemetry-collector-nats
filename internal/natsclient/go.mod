@@ -1,4 +1,4 @@
-module github.com/synadia-labs/opentelemetry-collector-nats/internal/natsclient
+module github.com/suckatrash/opentelemetry-collector-nats/internal/natsclient
 
 go 1.25.0
 

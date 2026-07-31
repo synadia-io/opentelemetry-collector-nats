@@ -4,4 +4,4 @@
 //go:generate mdatagen metadata.yaml
 
 // Package natscoreexporter exports signals to a NATS Core server.
-package natscoreexporter // import "github.com/synadia-labs/opentelemetry-collector-nats/exporter/natscoreexporter"
+package natscoreexporter // import "github.com/suckatrash/opentelemetry-collector-nats/exporter/natscoreexporter"
