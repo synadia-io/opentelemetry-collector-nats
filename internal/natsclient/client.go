@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package natsclient // import "github.com/suckatrash/opentelemetry-collector-nats/internal/natsclient"
+package natsclient // import "github.com/synadia-io/opentelemetry-collector-nats/internal/natsclient"
 
 import (
 	"context"

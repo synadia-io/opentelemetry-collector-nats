@@ -75,7 +75,7 @@ Add the module to an [OpenTelemetry Collector Builder](https://github.com/open-t
 
 ```yaml
 exporters:
-  - gomod: github.com/suckatrash/opentelemetry-collector-nats/exporter/natscoreexporter v0.0.0
+  - gomod: github.com/synadia-io/opentelemetry-collector-nats/exporter/natscoreexporter v0.0.0
 ```
 
 (Pin to a tag once one is published; until then, use a `replace` pointing at a local checkout.)

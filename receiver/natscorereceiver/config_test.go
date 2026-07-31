@@ -14,8 +14,8 @@ import (
 	"go.opentelemetry.io/collector/config/configtls"
 	"go.opentelemetry.io/collector/confmap/confmaptest"
 
-	"github.com/suckatrash/opentelemetry-collector-nats/internal/natsclient"
-	"github.com/suckatrash/opentelemetry-collector-nats/receiver/natscorereceiver/internal/metadata"
+	"github.com/synadia-io/opentelemetry-collector-nats/internal/natsclient"
+	"github.com/synadia-io/opentelemetry-collector-nats/receiver/natscorereceiver/internal/metadata"
 )
 
 func TestLoadConfig(t *testing.T) {
