@@ -20,7 +20,7 @@ import (
 	"go.opentelemetry.io/collector/pdata/testdata"
 	"go.opentelemetry.io/collector/receiver/receivertest"
 
-	"github.com/suckatrash/opentelemetry-collector-nats/receiver/natscorereceiver/internal/metadata"
+	"github.com/synadia-io/opentelemetry-collector-nats/receiver/natscorereceiver/internal/metadata"
 )
 
 // runServer starts an embedded nats-server for a test, optionally with JetStream.

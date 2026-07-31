@@ -15,8 +15,8 @@ import (
 	"go.opentelemetry.io/collector/confmap/confmaptest"
 	"go.opentelemetry.io/collector/confmap/xconfmap"
 
-	"github.com/suckatrash/opentelemetry-collector-nats/exporter/natscoreexporter/internal/metadata"
-	"github.com/suckatrash/opentelemetry-collector-nats/internal/natsclient"
+	"github.com/synadia-io/opentelemetry-collector-nats/exporter/natscoreexporter/internal/metadata"
+	"github.com/synadia-io/opentelemetry-collector-nats/internal/natsclient"
 )
 
 func TestConfigValidate(t *testing.T) {

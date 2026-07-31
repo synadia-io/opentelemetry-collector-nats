@@ -8,7 +8,7 @@ import (
 
 var (
 	Type      = component.MustNewType("natscore")
-	ScopeName = "github.com/suckatrash/opentelemetry-collector-nats/receiver/natscorereceiver"
+	ScopeName = "github.com/synadia-io/opentelemetry-collector-nats/receiver/natscorereceiver"
 )
 
 const (

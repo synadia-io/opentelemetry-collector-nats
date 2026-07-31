@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package marshaler // import "github.com/suckatrash/opentelemetry-collector-nats/exporter/natscoreexporter/internal/marshaler"
+package marshaler // import "github.com/synadia-io/opentelemetry-collector-nats/exporter/natscoreexporter/internal/marshaler"
 
 import "go.opentelemetry.io/collector/component"
 

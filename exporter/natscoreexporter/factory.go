@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package natscoreexporter // import "github.com/suckatrash/opentelemetry-collector-nats/exporter/natscoreexporter"
+package natscoreexporter // import "github.com/synadia-io/opentelemetry-collector-nats/exporter/natscoreexporter"
 
 import (
 	"context"
@@ -12,8 +12,8 @@ import (
 	"go.opentelemetry.io/collector/exporter"
 	"go.opentelemetry.io/collector/exporter/exporterhelper"
 
-	"github.com/suckatrash/opentelemetry-collector-nats/exporter/natscoreexporter/internal/metadata"
-	"github.com/suckatrash/opentelemetry-collector-nats/internal/natsclient"
+	"github.com/synadia-io/opentelemetry-collector-nats/exporter/natscoreexporter/internal/metadata"
+	"github.com/synadia-io/opentelemetry-collector-nats/internal/natsclient"
 )
 
 const (
