@@ -12,9 +12,10 @@ per the current [new-components guidance](https://github.com/open-telemetry/open
 Tracking issue: [open-telemetry/opentelemetry-collector-contrib#39540](https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/39540)
 — *NATS as a Receiver and Exporter*.
 
-> Status: **v0.1.0 released** — installable in any `ocb`-built Collector (see below).
-> Stability is still *in development*; not yet donated to, or bundled in, any official
-> Collector distribution.
+> Status: **v0.2.0 released** — installable in any `ocb`-built Collector (see below).
+> Targets OpenTelemetry Collector core **v0.159.0** (stable modules v1.65.0); build with
+> a matching `ocb` v0.159.x. Stability is still *in development*; not yet donated to, or
+> bundled in, any official Collector distribution.
 
 ## Components
 
@@ -77,9 +78,9 @@ Add the module to an [OpenTelemetry Collector Builder](https://github.com/open-t
 
 ```yaml
 exporters:
-  - gomod: github.com/synadia-io/opentelemetry-collector-nats/exporter/natsexporter v0.1.0
+  - gomod: github.com/synadia-io/opentelemetry-collector-nats/exporter/natsexporter v0.2.0
 receivers:
-  - gomod: github.com/synadia-io/opentelemetry-collector-nats/receiver/natsreceiver v0.1.0
+  - gomod: github.com/synadia-io/opentelemetry-collector-nats/receiver/natsreceiver v0.2.0
 ```
 
 See [`demo/`](./demo) for a complete, runnable example — it builds a Collector with
