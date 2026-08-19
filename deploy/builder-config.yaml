@@ -5,11 +5,11 @@
 # needed to receive OTLP from applications and forward decoded telemetry to a
 # backend (e.g. Jaeger):
 #
-#   receivers:  otlp, natscore
-#   exporters:  otlp (to Jaeger), debug, natscore
+#   receivers:  otlp, nats
+#   exporters:  otlp (to Jaeger), debug, nats
 #   processors: batch
 #
-# Built inside deploy/Dockerfile. The natscore modules are unpublished, so the
+# Built inside deploy/Dockerfile. The nats modules are unpublished, so the
 # replaces point at the working copies in the repo (paths are relative to the
 # generated go.mod under ./_build, i.e. two levels up = repo root).
 
@@ -20,17 +20,17 @@ dist:
 
 receivers:
   - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.133.0
-  - gomod: github.com/synadia-io/opentelemetry-collector-nats/receiver/natscorereceiver v0.0.0
+  - gomod: github.com/synadia-io/opentelemetry-collector-nats/receiver/natsreceiver v0.0.0
 
 exporters:
   - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.133.0
   - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.133.0
-  - gomod: github.com/synadia-io/opentelemetry-collector-nats/exporter/natscoreexporter v0.0.0
+  - gomod: github.com/synadia-io/opentelemetry-collector-nats/exporter/natsexporter v0.0.0
 
 processors:
   - gomod: go.opentelemetry.io/collector/processor/batchprocessor v0.133.0
 
 replaces:
-  - github.com/synadia-io/opentelemetry-collector-nats/exporter/natscoreexporter => ../../exporter/natscoreexporter
-  - github.com/synadia-io/opentelemetry-collector-nats/receiver/natscorereceiver => ../../receiver/natscorereceiver
+  - github.com/synadia-io/opentelemetry-collector-nats/exporter/natsexporter => ../../exporter/natsexporter
+  - github.com/synadia-io/opentelemetry-collector-nats/receiver/natsreceiver => ../../receiver/natsreceiver
   - github.com/synadia-io/opentelemetry-collector-nats/internal/natsclient => ../../internal/natsclient

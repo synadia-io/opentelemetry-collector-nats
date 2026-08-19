@@ -6,8 +6,8 @@ Kubernetes requires a custom image built with the
 [OpenTelemetry Collector Builder](https://github.com/open-telemetry/opentelemetry-collector-releases/tree/main/cmd/builder)
 (`ocb`). This directory builds one.
 
-Components baked in: `otlp` + `natscore` receivers, `otlp` + `debug` +
-`natscore` exporters, `batch` processor. See [`builder-config.yaml`](./builder-config.yaml).
+Components baked in: `otlp` + `nats` receivers, `otlp` + `debug` +
+`nats` exporters, `batch` processor. See [`builder-config.yaml`](./builder-config.yaml).
 
 ## Build & push
 
@@ -36,7 +36,7 @@ deployment (Deployment/DaemonSet manifest, Helm values, etc.).
 The image expects a Collector config at `/etc/otelcol/config.yaml` (mounted from
 a ConfigMap) and, for authenticated NATS, a `.creds` file (mounted from a
 Secret). A minimal two-pipeline example
-(`OTLP → natscore → JetStream → natscore → Jaeger`):
+(`OTLP → nats → JetStream → nats → Jaeger`):
 
 ```yaml
 receivers:
@@ -44,13 +44,13 @@ receivers:
     protocols:
       grpc: { endpoint: 0.0.0.0:4317 }
       http: { endpoint: 0.0.0.0:4318 }
-  natscore:
+  nats:
     endpoint: tls://nats.example.com:4222
     nkey_user_file: { user_file: /etc/nats/creds/collector.creds }
     jetstream: { domain: my_domain, ack_wait: 30s, max_deliver: 5 }
     traces: { subject: otel_spans, encoding: otlp_proto, stream: OTEL_SPANS, durable: otel_spans_consumer }
 exporters:
-  natscore:
+  nats:
     endpoint: tls://nats.example.com:4222
     nkey_user_file: { user_file: /etc/nats/creds/collector.creds }
     jetstream: { domain: my_domain }
@@ -62,8 +62,8 @@ processors:
   batch: {}
 service:
   pipelines:
-    traces/produce: { receivers: [otlp], processors: [batch], exporters: [natscore] }
-    traces/consume: { receivers: [natscore], processors: [batch], exporters: [otlp/jaeger] }
+    traces/produce: { receivers: [otlp], processors: [batch], exporters: [nats] }
+    traces/consume: { receivers: [nats], processors: [batch], exporters: [otlp/jaeger] }
 ```
 
 The `OTEL_SPANS` JetStream stream (subject `otel_spans`) must exist — the

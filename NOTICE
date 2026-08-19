@@ -8,7 +8,7 @@ This product includes software developed at The OpenTelemetry Authors
 Attribution
 ------------------------------------------------------------------------------
 
-The `exporter/natscoreexporter` component is derived from prior art originally
+The `exporter/natsexporter` component is derived from prior art originally
 authored by Ethan Kim (https://github.com/EthanKim8683) and contributed to the
 opentelemetry-collector-contrib project in the following (unmerged) pull
 requests, all tracked under issue #39540:

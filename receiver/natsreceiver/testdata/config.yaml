@@ -1,0 +1,23 @@
+nats:
+  endpoint: nats://localhost:1234
+  jetstream:
+    ack_wait: 30s
+    max_deliver: 5
+  logs:
+    subject: otel_logs
+    encoding: otlp_json
+    stream: OTEL_LOGS
+    durable: otel_logs_consumer
+  metrics:
+    subject: otel_metrics
+    encoding: otlp_json
+    stream: OTEL_METRICS
+    durable: otel_metrics_consumer
+  traces:
+    subject: otel_spans
+    encoding: otlp_json
+    stream: OTEL_TRACES
+    durable: otel_traces_consumer
+  # Auth is squashed onto the receiver config (no `auth:` wrapper key).
+  token:
+    token: "token"

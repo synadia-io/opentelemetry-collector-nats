@@ -21,8 +21,8 @@ import (
 	"go.opentelemetry.io/collector/pdata/testdata"
 	"go.opentelemetry.io/collector/receiver/receivertest"
 
-	"github.com/synadia-io/opentelemetry-collector-nats/exporter/natscoreexporter"
-	"github.com/synadia-io/opentelemetry-collector-nats/receiver/natscorereceiver"
+	"github.com/synadia-io/opentelemetry-collector-nats/exporter/natsexporter"
+	"github.com/synadia-io/opentelemetry-collector-nats/receiver/natsreceiver"
 )
 
 // runJetStreamServer starts an embedded JetStream-enabled nats-server and returns
@@ -57,19 +57,19 @@ func createStream(t *testing.T, url string) {
 
 // newExporterConfig returns a JetStream exporter config pointed at url (default
 // subjects/marshaler).
-func newExporterConfig(url string) *natscoreexporter.Config {
-	cfg := natscoreexporter.NewFactory().CreateDefaultConfig().(*natscoreexporter.Config)
+func newExporterConfig(url string) *natsexporter.Config {
+	cfg := natsexporter.NewFactory().CreateDefaultConfig().(*natsexporter.Config)
 	cfg.Endpoint = url
-	cfg.JetStream = &natscoreexporter.JetStreamConfig{PublishTimeout: 5 * time.Second}
+	cfg.JetStream = &natsexporter.JetStreamConfig{PublishTimeout: 5 * time.Second}
 	return cfg
 }
 
 // newReceiverConfig returns a JetStream receiver config pointed at url, binding a
 // durable consumer per signal to the shared OTEL stream.
-func newReceiverConfig(url string) *natscorereceiver.Config {
-	cfg := natscorereceiver.NewFactory().CreateDefaultConfig().(*natscorereceiver.Config)
+func newReceiverConfig(url string) *natsreceiver.Config {
+	cfg := natsreceiver.NewFactory().CreateDefaultConfig().(*natsreceiver.Config)
 	cfg.Endpoint = url
-	cfg.JetStream = &natscorereceiver.JetStreamConfig{AckWait: 5 * time.Second}
+	cfg.JetStream = &natsreceiver.JetStreamConfig{AckWait: 5 * time.Second}
 	cfg.Logs.Subject, cfg.Logs.Stream, cfg.Logs.Durable = "otel_logs", "OTEL", "e2e_logs"
 	cfg.Metrics.Subject, cfg.Metrics.Stream, cfg.Metrics.Durable = "otel_metrics", "OTEL", "e2e_metrics"
 	cfg.Traces.Subject, cfg.Traces.Stream, cfg.Traces.Durable = "otel_spans", "OTEL", "e2e_traces"
@@ -84,14 +84,14 @@ func TestRoundTrip_Traces(t *testing.T) {
 	ctx := context.Background()
 	host := componenttest.NewNopHost()
 
-	rf := natscorereceiver.NewFactory()
+	rf := natsreceiver.NewFactory()
 	sink := new(consumertest.TracesSink)
 	rcv, err := rf.CreateTraces(ctx, receivertest.NewNopSettings(rf.Type()), newReceiverConfig(url), sink)
 	require.NoError(t, err)
 	require.NoError(t, rcv.Start(ctx, host))
 	t.Cleanup(func() { require.NoError(t, rcv.Shutdown(ctx)) })
 
-	ef := natscoreexporter.NewFactory()
+	ef := natsexporter.NewFactory()
 	exp, err := ef.CreateTraces(ctx, exportertest.NewNopSettings(ef.Type()), newExporterConfig(url))
 	require.NoError(t, err)
 	require.NoError(t, exp.Start(ctx, host))
@@ -113,14 +113,14 @@ func TestRoundTrip_Logs(t *testing.T) {
 	ctx := context.Background()
 	host := componenttest.NewNopHost()
 
-	rf := natscorereceiver.NewFactory()
+	rf := natsreceiver.NewFactory()
 	sink := new(consumertest.LogsSink)
 	rcv, err := rf.CreateLogs(ctx, receivertest.NewNopSettings(rf.Type()), newReceiverConfig(url), sink)
 	require.NoError(t, err)
 	require.NoError(t, rcv.Start(ctx, host))
 	t.Cleanup(func() { require.NoError(t, rcv.Shutdown(ctx)) })
 
-	ef := natscoreexporter.NewFactory()
+	ef := natsexporter.NewFactory()
 	exp, err := ef.CreateLogs(ctx, exportertest.NewNopSettings(ef.Type()), newExporterConfig(url))
 	require.NoError(t, err)
 	require.NoError(t, exp.Start(ctx, host))
@@ -142,14 +142,14 @@ func TestRoundTrip_Metrics(t *testing.T) {
 	ctx := context.Background()
 	host := componenttest.NewNopHost()
 
-	rf := natscorereceiver.NewFactory()
+	rf := natsreceiver.NewFactory()
 	sink := new(consumertest.MetricsSink)
 	rcv, err := rf.CreateMetrics(ctx, receivertest.NewNopSettings(rf.Type()), newReceiverConfig(url), sink)
 	require.NoError(t, err)
 	require.NoError(t, rcv.Start(ctx, host))
 	t.Cleanup(func() { require.NoError(t, rcv.Shutdown(ctx)) })
 
-	ef := natscoreexporter.NewFactory()
+	ef := natsexporter.NewFactory()
 	exp, err := ef.CreateMetrics(ctx, exportertest.NewNopSettings(ef.Type()), newExporterConfig(url))
 	require.NoError(t, err)
 	require.NoError(t, exp.Start(ctx, host))

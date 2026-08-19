@@ -12,14 +12,16 @@ per the current [new-components guidance](https://github.com/open-telemetry/open
 Tracking issue: [open-telemetry/opentelemetry-collector-contrib#39540](https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/39540)
 — *NATS as a Receiver and Exporter*.
 
-> Status: **early / in development.** Not yet donated, not yet in any Collector distribution.
+> Status: **v0.1.0 released** — installable in any `ocb`-built Collector (see below).
+> Stability is still *in development*; not yet donated to, or bundled in, any official
+> Collector distribution.
 
 ## Components
 
 | Component | Path | Signals | Status |
 |-----------|------|---------|--------|
-| NATS Core exporter | [`exporter/natscoreexporter`](./exporter/natscoreexporter) | traces, metrics, logs | in development (Core NATS + JetStream) |
-| NATS Core receiver | [`receiver/natscorereceiver`](./receiver/natscorereceiver) | traces, metrics, logs | in development (Core NATS + JetStream durable consumer) |
+| NATS exporter | [`exporter/natsexporter`](./exporter/natsexporter) | traces, metrics, logs | in development (Core NATS + JetStream) |
+| NATS receiver | [`receiver/natsreceiver`](./receiver/natsreceiver) | traces, metrics, logs | in development (Core NATS + JetStream durable consumer) |
 
 Highlights of the exporter today:
 
@@ -64,7 +66,7 @@ Highlights of the receiver today:
 Run the Go tests per module:
 
 ```sh
-for m in internal/natsclient exporter/natscoreexporter receiver/natscorereceiver test/e2e; do
+for m in internal/natsclient exporter/natsexporter receiver/natsreceiver test/e2e; do
   ( cd "$m" && go test ./... )
 done
 ```
@@ -75,10 +77,10 @@ Add the module to an [OpenTelemetry Collector Builder](https://github.com/open-t
 
 ```yaml
 exporters:
-  - gomod: github.com/synadia-io/opentelemetry-collector-nats/exporter/natscoreexporter v0.0.0
+  - gomod: github.com/synadia-io/opentelemetry-collector-nats/exporter/natsexporter v0.1.0
+receivers:
+  - gomod: github.com/synadia-io/opentelemetry-collector-nats/receiver/natsreceiver v0.1.0
 ```
-
-(Pin to a tag once one is published; until then, use a `replace` pointing at a local checkout.)
 
 See [`demo/`](./demo) for a complete, runnable example — it builds a Collector with
 both components and pushes a trace through them (`OTLP → exporter → JetStream →
@@ -86,7 +88,7 @@ receiver → console`) with a single `./run.sh`.
 
 ## Attribution
 
-The initial `natscoreexporter` is derived from unmerged prior art contributed by
+The initial `natsexporter` is derived from unmerged prior art contributed by
 **[@EthanKim8683](https://github.com/EthanKim8683)** to opentelemetry-collector-contrib:
 
 - [#42186](https://github.com/open-telemetry/opentelemetry-collector-contrib/pull/42186) — New component: NATS Core Exporter

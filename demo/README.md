@@ -4,7 +4,7 @@ This builds a custom OpenTelemetry Collector containing both components and push
 a trace through them end to end:
 
 ```
-OTLP in ─▶ natscore exporter ─▶ NATS JetStream (OTEL_SPANS) ─▶ natscore receiver ─▶ debug (console)
+OTLP in ─▶ nats exporter ─▶ NATS JetStream (OTEL_SPANS) ─▶ nats receiver ─▶ debug (console)
 ```
 
 Both directions run in a single Collector process, so one injected trace is

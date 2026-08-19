@@ -13,17 +13,17 @@ dist:
 
 receivers:
   - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.133.0
-  - gomod: github.com/synadia-io/opentelemetry-collector-nats/receiver/natscorereceiver v0.0.0
+  - gomod: github.com/synadia-io/opentelemetry-collector-nats/receiver/natsreceiver v0.0.0
 
 exporters:
   - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.133.0
-  - gomod: github.com/synadia-io/opentelemetry-collector-nats/exporter/natscoreexporter v0.0.0
+  - gomod: github.com/synadia-io/opentelemetry-collector-nats/exporter/natsexporter v0.0.0
 
 # Our components are local (unpublished), so point the builder at the working
 # copies. natsclient is pulled in transitively and must be replaced too, because
 # a required module's own replace directives are ignored by the main (generated)
 # module. Paths are relative to the generated go.mod under ./_build.
 replaces:
-  - github.com/synadia-io/opentelemetry-collector-nats/exporter/natscoreexporter => ../../exporter/natscoreexporter
-  - github.com/synadia-io/opentelemetry-collector-nats/receiver/natscorereceiver => ../../receiver/natscorereceiver
+  - github.com/synadia-io/opentelemetry-collector-nats/exporter/natsexporter => ../../exporter/natsexporter
+  - github.com/synadia-io/opentelemetry-collector-nats/receiver/natsreceiver => ../../receiver/natsreceiver
   - github.com/synadia-io/opentelemetry-collector-nats/internal/natsclient => ../../internal/natsclient
